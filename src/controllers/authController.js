@@ -50,13 +50,13 @@ const registerUser = async (req, res) => {
 
 // Login de usuario
 const loginUser = async (req, res) => {
-  const { nombre_usuario, password } = req.body;
+  const { nombre_usuario, password_usuario } = req.body;
 
   try {
     // Buscar el usuario por nombre de usuario
     const userResult = await pool.query(
-      "SELECT * FROM usuario WHERE username = $1",
-      [username]
+      "SELECT * FROM usuario WHERE nombre_usuario = $1",
+      [nombre_usuario]
     );
     const user = userResult.rows[0];
 
@@ -65,7 +65,7 @@ const loginUser = async (req, res) => {
     }
 
     // Verificar la contraseña
-    const validPassword = await bcrypt.compare(password, user.password);
+    const validPassword = await bcrypt.compare(password_usuario, user.password);
     if (!validPassword) {
       return res.status(400).json({ error: "Contraseña incorrecta" });
     }
