@@ -10,6 +10,7 @@ const registerUser = async (req, res) => {
     password_usuario,
     nombre_usuario,
     apellido_usuario,
+    estado_usuario
   } = req.body;
 
   try {
@@ -28,13 +29,14 @@ const registerUser = async (req, res) => {
 
     // Insertar el nuevo usuario en la base de datos
     const newUser = await pool.query(
-      "INSERT INTO usuario (id_usuario, correo_usuario, password_usuario, nombre_usuario, apellido_usuario) VALUES ($1, $2, $3, $4, $5) RETURNING *",
+      "INSERT INTO usuario (id_usuario, correo_usuario, password_usuario, nombre_usuario, apellido_usuario, estado_usuario) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *",
       [
         id_usuario,
         correo_usuario,
         hashedPassword,
         nombre_usuario,
         apellido_usuario,
+        estado_usuario
       ]
     );
 
@@ -50,13 +52,17 @@ const registerUser = async (req, res) => {
 
 // Login de usuario
 const loginUser = async (req, res) => {
-  const { nombre_usuario, password_usuario } = req.body;
+  const { 
+    id_usuario,
+    nombre_usuario, 
+    password_usuario 
+  } = req.body;
 
   try {
-    // Buscar el usuario por nombre de usuario
+    // Buscar el usuario por id
     const userResult = await pool.query(
-      "SELECT * FROM usuario WHERE nombre_usuario = $1",
-      [nombre_usuario]
+      "SELECT * FROM usuario WHERE id_usuario = $1",
+      [id_usuario]
     );
     const user = userResult.rows[0];
 
@@ -82,7 +88,19 @@ const loginUser = async (req, res) => {
   }
 };
 
+// Logout de usuario
+const logoutUser = (req, res) => {
+  try {
+    // Aquí el cliente debe eliminar el token localmente
+    res.status(200).json({ message: "Logout exitoso, elimina el token en el cliente" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Error al cerrar sesión" });
+  }
+};
+
 module.exports = {
   registerUser,
   loginUser,
+  logoutUser
 };
