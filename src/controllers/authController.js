@@ -54,7 +54,7 @@ const registerUser = async (req, res) => {
 const loginUser = async (req, res) => {
   const { 
     id_usuario,
-    nombre_usuario, 
+    correo_usuario, 
     password_usuario 
   } = req.body;
 

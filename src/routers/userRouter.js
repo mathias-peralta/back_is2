@@ -6,6 +6,6 @@ const controller = require("../controllers/userController");
 router.get("/api/users/:id", controller.getUser);
 
 //ruta para actualizar usuario
-router.get("/api/users/:id", controller.updateUser);
+router.put("/api/users/:id", controller.updateUser);
 
 module.exports = router;

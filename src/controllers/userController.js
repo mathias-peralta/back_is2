@@ -24,21 +24,18 @@ controller.updateUser = async (req, res) => {
   const { id } = req.params; // El ID del usuario a actualizar
   const { estado_usuario }  = req.body; //nuevo estado 
   try {
-    // Verificar si el usuario existe
-    const userResult = await pool.query("SELECT * FROM usuario WHERE id_usuario = $1", [id]);
-    const user = userResult.rows[0];
-
-    if (!user) {
-      return res.status(404).json({ error: "Usuario no encontrado" });
-    }
-
     // Actualizar el estado del usuario
-    await pool.query(
+    const result = await pool.query(
       "UPDATE usuario SET estado_usuario = $1 WHERE id_usuario = $2",
       [estado_usuario, id]
     );
 
+    if (result.rowCount === 0) {
+      return res.status(404).json({ error: "Usuario no encontrado" });
+    }
+
     res.status(200).json({ message: "Usuario actualizado correctamente" });
+    
   } catch (err) {
     console.error("Error ejecutando la actualización", err.stack);
     res.status(500).json({ error: "Error al actualizar el usuario" });
