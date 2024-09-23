@@ -3,7 +3,7 @@ const router = express.Router();
 const controller = require("../controllers/userController");
 
 //ruta para obtener el usuario
-router.get("/api/users/:id", controller.getUser);
+router.get("/api/user/:id", controller.getUserById);
 
 //ruta para actualizar usuario
 router.put("/api/users/:id", controller.updateUser);
