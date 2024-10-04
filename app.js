@@ -23,10 +23,17 @@ app.use('/api', listRoutes);
 app.use('/api', taskRoutes);
 
 // Sincronizar modelos y comenzar el servidor
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3005;
 
-sequelize.sync({ force: false }).then(() => {
-  app.listen(PORT, () => {
-    console.log("Servidor iniciado en el puerto ${PORT}");
+sequelize
+  .authenticate()
+  .then(() => {
+    console.log('Conexión a la base de datos establecida exitosamente.');
+    app.listen(PORT, () => {
+      console.log('Servidor iniciado en el puerto ' + PORT);
+    });
+  })
+  .catch((error) => {
+    console.error('No se pudo conectar a la base de datos:', error);
   });
-});
+;
