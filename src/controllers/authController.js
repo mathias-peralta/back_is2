@@ -53,7 +53,6 @@ const registerUser = async (req, res) => {
 // Login de usuario
 const loginUser = async (req, res) => {
   const { 
-    id_usuario,
     correo_usuario, 
     password_usuario 
   } = req.body;
@@ -61,8 +60,8 @@ const loginUser = async (req, res) => {
   try {
     // Buscar el usuario por id
     const userResult = await pool.query(
-      "SELECT * FROM usuario WHERE id_usuario = $1",
-      [id_usuario]
+      "SELECT * FROM usuario WHERE  correo_usuario = $1",
+      [correo_usuario]
     );
     const user = userResult.rows[0];
 
@@ -71,19 +70,19 @@ const loginUser = async (req, res) => {
     }
 
     // Verificar la contraseña
-    const validPassword = await bcrypt.compare(password_usuario, user.password);
+    const validPassword = await bcrypt.compare(password_usuario, user.password_usuario);
     if (!validPassword) {
       return res.status(400).json({ error: "Contraseña incorrecta" });
     }
 
     // Generar el token JWT
-    const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, {
+    const token = jwt.sign({ userId: user.id_usuario }, process.env.JWT_SECRET, {
       expiresIn: "1h", // Expira en 1 hora
     });
 
     res.status(200).json({ token, message: "Login exitoso" });
   } catch (err) {
-    console.error(err);
+    console.error('Error al iniciar sesión:', err.message);
     res.status(500).json({ error: "Error al iniciar sesión" });
   }
 };

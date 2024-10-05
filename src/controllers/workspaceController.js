@@ -9,19 +9,19 @@ controller.createWorkspace = async (req, res) => {
     descripcion_espacio, 
     nombre_espacio, 
     fecha_creacion, 
-    estado_trabajo 
+    estado_espacio
   } = req.body;
 
   try {
     // Insertar el nuevo espacio de trabajo
     const newWorkspace = await pool.query(
-      "INSERT INTO espacio_trabajo (id_espacio, propietario, descripcion_espacio, nombre_espacio, fecha_creacion, estado_trabajo) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *",
+      "INSERT INTO espacio_trabajo (id_espacio, propietario, descripcion_espacio, nombre_espacio, fecha_creacion, estado_espacio) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *",
       [ id_espacio, 
         propietario, 
         descripcion_espacio, 
         nombre_espacio, 
         fecha_creacion, 
-        'activo']
+        estado_espacio]
     );
 
     // crear el propietario como miembro
