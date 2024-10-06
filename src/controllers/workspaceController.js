@@ -65,13 +65,13 @@ controller.getWorkspace = async (req, res) => {
 // Actualizar (inactivar) un espacio de trabajo
 controller.updateWorkspace = async (req, res) => {
   const { id } = req.params;
-  const { estado } = req.body;
+  const { estado_espacio } = req.body;
 
   try {
     // Actualizar el estado del espacio de trabajo
     const result = await pool.query(
       "UPDATE espacio_trabajo SET estado_espacio = $1 WHERE id_espacio = $2",
-      [estado, id]
+      [estado_espacio, id]
     );
 
     if (result.rowCount === 0) {
@@ -82,6 +82,36 @@ controller.updateWorkspace = async (req, res) => {
   } catch (err) {
     console.error("Error ejecutando la actualización", err.stack);
     res.status(500).json({ error: "Error al actualizar el espacio de trabajo" });
+  }
+};
+
+// Controlador para obtener la lista de miembros de un espacio de trabajo
+controller.getWorkspaceMembers = async (req, res) => {
+//const getWorkspaceMembers = async (req, res) => {
+  const { id_espacio } = req.params; // Obtener el id del espacio de trabajo de los parámetros de la URL
+
+  try {
+    // Hacer una consulta para obtener todos los miembros del espacio de trabajo
+    const result = await pool.query(
+      `SELECT u.id_usuario, u.nombre_usuario, u.apellido_usuario, u.correo_usuario 
+       FROM usuario u
+       0.
+       JOIN miembros m ON u.id_usuario = m.id_usuario
+       WHERE m.id_espacio = $1`,
+      [id_espacio]
+    );
+
+    const miembros = result.rows;
+
+    if (miembros.length === 0) {
+      return res.status(404).json({ message: "No se encontraron miembros para este espacio de trabajo" });
+    }
+
+    // Responder con la lista de miembros
+    res.status(200).json({ id_espacio, miembros });
+  } catch (err) {
+    console.error('Error al obtener los miembros:', err.message);
+    res.status(500).json({ error: "Error al obtener los miembros" });
   }
 };
 
