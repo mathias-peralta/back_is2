@@ -1,29 +1,37 @@
 // app.js
+
 const express = require('express');
 const app = express();
-const { sequelize } = require('./models');
-const cors = require('cors');
 require('dotenv').config();
+const cors = require('cors');
 
-app.use(cors());
+// Middlewares
 app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+app.use(cors());
 
-// Importar rutas
+// Importar las rutas
 const authRoutes = require('./routes/authRoutes');
+const userRoutes = require('./routes/userRoutes');
 const workspaceRoutes = require('./routes/workspaceRoutes');
 const boardRoutes = require('./routes/boardRoutes');
 const listRoutes = require('./routes/listRoutes');
 const taskRoutes = require('./routes/taskRoutes');
 
-// Usar rutas
+// Utilizar las rutas
 app.use('/api', authRoutes);
+app.use('/api', userRoutes);
 app.use('/api', workspaceRoutes);
 app.use('/api', boardRoutes);
 app.use('/api', listRoutes);
 app.use('/api', taskRoutes);
 
-// Sincronizar modelos y comenzar el servidor
-const PORT = process.env.PORT || 3005;
+// Manejo de errores y otros middlewares...
+
+// Iniciar el servidor
+const { sequelize } = require('./models');
+
+const PORT = process.env.PORT || 3001;
 
 sequelize
   .authenticate()
@@ -36,4 +44,5 @@ sequelize
   .catch((error) => {
     console.error('No se pudo conectar a la base de datos:', error);
   });
-;
+
+module.exports = app;

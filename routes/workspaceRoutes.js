@@ -1,10 +1,14 @@
 // routes/workspaceRoutes.js
+
 const express = require('express');
 const router = express.Router();
-const { createWorkspace, getWorkspaces } = require('../controllers/workspaceController');
+const workspaceController = require('../controllers/workspaceController');
 const authMiddleware = require('../middlewares/authMiddleware');
 
-router.post('/espacios', authMiddleware, createWorkspace);
-router.get('/espacios', authMiddleware, getWorkspaces);
+// Ruta para crear un nuevo espacio de trabajo
+router.post('/espacios', authMiddleware, workspaceController.createWorkspace);
+
+// Ruta para obtener los espacios de trabajo del usuario autenticado
+router.get('/espacios', authMiddleware, workspaceController.getWorkspaces);
 
 module.exports = router;

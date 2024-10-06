@@ -1,4 +1,5 @@
 // controllers/workspaceController.js
+
 const { Workspace, User } = require('../models');
 
 exports.createWorkspace = async (req, res) => {
@@ -8,14 +9,12 @@ exports.createWorkspace = async (req, res) => {
     // Crear el espacio de trabajo
     const workspace = await Workspace.create({
       nombre,
-      ownerId: req.user.id,
+      owner_id: req.user.id,
     });
 
     // Asociar usuarios al espacio de trabajo
     if (usuarios_id && usuarios_id.length > 0) {
-      const users = await User.findAll({
-        where: { id: usuarios_id },
-      });
+      const users = await User.findAll({ where: { id: usuarios_id } });
       await workspace.addUsers(users);
     }
 

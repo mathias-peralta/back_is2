@@ -1,5 +1,6 @@
 // controllers/listController.js
-const { List, Board } = require('../models');
+
+const { List, Board, Workspace } = require('../models');
 
 exports.createList = async (req, res) => {
   const { nombre, maxWIP, tablero_id } = req.body;
@@ -7,17 +8,23 @@ exports.createList = async (req, res) => {
   try {
     // Verificar que el usuario tiene acceso al tablero
     const board = await Board.findByPk(tablero_id);
-    const workspace = await board.getWorkspace();
+
+    if (!board) {
+      return res.status(404).json({ error: 'El tablero no existe.' });
+    }
+
+    const workspace = await Workspace.findByPk(board.workspace_id);
     const users = await workspace.getUsers({ where: { id: req.user.id } });
 
     if (users.length === 0) {
       return res.status(403).json({ error: 'No tienes acceso a este tablero.' });
     }
 
+    // Crear la lista
     const list = await List.create({
       nombre,
-      maxWIP,
-      boardId: tablero_id,
+      max_wip: maxWIP,
+      board_id: tablero_id,
     });
 
     res.status(201).json(list);
@@ -34,17 +41,22 @@ exports.updateList = async (req, res) => {
   try {
     const list = await List.findByPk(id);
 
+    if (!list) {
+      return res.status(404).json({ error: 'La lista no existe.' });
+    }
+
     // Verificar que el usuario tiene acceso al tablero
-    const board = await list.getBoard();
-    const workspace = await board.getWorkspace();
+    const board = await Board.findByPk(list.board_id);
+    const workspace = await Workspace.findByPk(board.workspace_id);
     const users = await workspace.getUsers({ where: { id: req.user.id } });
 
     if (users.length === 0) {
       return res.status(403).json({ error: 'No tienes acceso a esta lista.' });
     }
 
-    list.nombre = nombre;
-    list.maxWIP = maxWIP;
+    // Actualizar la lista
+    list.nombre = nombre || list.nombre;
+    list.max_wip = maxWIP || list.max_wip;
     await list.save();
 
     res.json(list);
@@ -60,9 +72,13 @@ exports.deleteList = async (req, res) => {
   try {
     const list = await List.findByPk(id);
 
+    if (!list) {
+      return res.status(404).json({ error: 'La lista no existe.' });
+    }
+
     // Verificar que el usuario tiene acceso al tablero
-    const board = await list.getBoard();
-    const workspace = await board.getWorkspace();
+    const board = await Board.findByPk(list.board_id);
+    const workspace = await Workspace.findByPk(board.workspace_id);
     const users = await workspace.getUsers({ where: { id: req.user.id } });
 
     if (users.length === 0) {
@@ -82,19 +98,28 @@ exports.getTasksByList = async (req, res) => {
 
   try {
     const list = await List.findByPk(id, {
-      include: ['Tasks'],
+      include: [
+        {
+          model: require('../models').Task,
+          as: 'tasks',
+        },
+      ],
     });
 
+    if (!list) {
+      return res.status(404).json({ error: 'La lista no existe.' });
+    }
+
     // Verificar que el usuario tiene acceso al tablero
-    const board = await list.getBoard();
-    const workspace = await board.getWorkspace();
+    const board = await Board.findByPk(list.board_id);
+    const workspace = await Workspace.findByPk(board.workspace_id);
     const users = await workspace.getUsers({ where: { id: req.user.id } });
 
     if (users.length === 0) {
       return res.status(403).json({ error: 'No tienes acceso a esta lista.' });
     }
 
-    res.json(list.Tasks);
+    res.json(list.tasks);
   } catch (error) {
     console.error('Error al obtener las tareas de la lista:', error);
     res.status(500).json({ error: 'Error al obtener las tareas.' });

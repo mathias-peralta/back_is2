@@ -1,10 +1,14 @@
 // routes/boardRoutes.js
+
 const express = require('express');
 const router = express.Router();
-const { createBoard, getBoard } = require('../controllers/boardController');
+const boardController = require('../controllers/boardController');
 const authMiddleware = require('../middlewares/authMiddleware');
 
-router.post('/tableros', authMiddleware, createBoard);
-router.get('/tableros/:id', authMiddleware, getBoard);
+// Ruta para crear un nuevo tablero
+router.post('/tableros', authMiddleware, boardController.createBoard);
+
+// Ruta para obtener un tablero específico
+router.get('/tableros/:id', authMiddleware, boardController.getBoard);
 
 module.exports = router;
