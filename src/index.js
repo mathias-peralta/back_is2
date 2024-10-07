@@ -9,6 +9,8 @@ const authRoutes = require("./routers/authRouter");
 const workspaceRouter = require ("./routers/workspaceRouter");
 const tableroRouter = require("./routers/tableroRouter");
 const listaRouter = require("./routers/listaRouter");
+const tareaRouter = require("./routers/tareaRouter");
+const tarjetaRouter = require("./routers/tarjetaRouter");
 
 //settings
 app.set("port", process.env.PORT || 3001);
@@ -32,6 +34,8 @@ app.use("/api/auth", authRoutes);
 app.use("/api/", workspaceRouter);
 app.use("/api/", tableroRouter);
 app.use("/api/", listaRouter);
+app.use("/api/", tareaRouter);
+app.use("/api/", tarjetaRouter);
 
 //config
 app.listen(app.get("port"), () => {

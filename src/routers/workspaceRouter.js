@@ -14,4 +14,7 @@ router.put("/workspaces/:id", workspaceController.updateWorkspace);
 // Ruta para obtener la lista de miembros en un espacio de trabajo específico
 router.get('/workspaces/miembros/:id_espacio', workspaceController.getWorkspaceMembers);
 
+// Ruta para agregar un nuevo miembro a un espacio de trabajo
+router.post("/workspaces/miembros/", workspaceController.addMiembro);
+
 module.exports = router;

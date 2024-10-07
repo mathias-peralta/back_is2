@@ -95,7 +95,6 @@ controller.getWorkspaceMembers = async (req, res) => {
     const result = await pool.query(
       `SELECT u.id_usuario, u.nombre_usuario, u.apellido_usuario, u.correo_usuario 
        FROM usuario u
-       0.
        JOIN miembros m ON u.id_usuario = m.id_usuario
        WHERE m.id_espacio = $1`,
       [id_espacio]
@@ -112,6 +111,31 @@ controller.getWorkspaceMembers = async (req, res) => {
   } catch (err) {
     console.error('Error al obtener los miembros:', err.message);
     res.status(500).json({ error: "Error al obtener los miembros" });
+  }
+};
+
+// Agregar un nuevo miembro a un espacio de trabajo
+controller.addMiembro = async (req, res) => {
+  const { id_usuario, id_espacio } = req.body;
+
+  try {
+    // Insertar el nuevo miembro en el espacio de trabajo
+    const newMiembro = await pool.query(
+      "INSERT INTO miembros (id_usuario, id_espacio) VALUES ($1, $2) RETURNING *",
+      [id_usuario, id_espacio]
+    );
+
+    res.status(201).json({
+      message: "Miembro agregado correctamente al espacio de trabajo",
+      miembro: newMiembro.rows[0],
+    });
+  } catch (err) {
+    // Verificar si el miembro ya existe en el espacio de trabajo
+    if (err.code === '23505') {
+      return res.status(409).json({ error: "El usuario ya es miembro de este espacio de trabajo" });
+    }
+    console.error("Error al agregar el miembro:", err.message);
+    res.status(500).json({ error: "Error al agregar el miembro" });
   }
 };
 
