@@ -3,13 +3,24 @@ const controller = {};
 
 // Crear una nueva tarjeta
 controller.createTarjeta = async (req, res) => {
-  const { id_tarjeta, usuario_asignado, id_lista, titulo_tarjeta, descripcion_tarjeta, fecha_creacion, fecha_vencimiento } = req.body;
+  const { 
+    usuario_asignado, 
+    id_lista, 
+    titulo_tarjeta, 
+    descripcion_tarjeta, 
+    fecha_creacion, 
+    fecha_vencimiento 
+  } = req.body;
 
   try {
+     // Obtener el valor máximo de id_tarjeta y sumarle 1
+     const result = await pool.query("SELECT COALESCE(MAX(id_tarjeta), 0) + 1 AS new_id FROM tarjeta");
+     const newId = result.rows[0].new_id;
+
     // Insertar la nueva tarjeta
     const newTarjeta = await pool.query(
       "INSERT INTO tarjeta (id_tarjeta, usuario_asignado, id_lista, titulo_tarjeta, descripcion_tarjeta, fecha_creacion, fecha_vencimiento) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *",
-      [id_tarjeta, usuario_asignado, id_lista, titulo_tarjeta, descripcion_tarjeta, fecha_creacion, fecha_vencimiento]
+      [newId, usuario_asignado, id_lista, titulo_tarjeta, descripcion_tarjeta, fecha_creacion, fecha_vencimiento]
     );
 
     res.status(201).json({

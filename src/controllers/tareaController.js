@@ -3,14 +3,18 @@ const controller = {};
 
 // Crear una nueva tarea
 controller.createTarea = async (req, res) => {
-  const { id_tarea, id_tarjeta, nombre_tarea, id_estado } = req.body;
+  const { id_tarjeta, nombre_tarea, id_estado } = req.body;
 
   try {
-    // Insertar la nueva tarea
-    const newTarea = await pool.query(
-      "INSERT INTO tarea (id_tarea, id_tarjeta, nombre_tarea, id_estado) VALUES ($1, $2, $3, $4) RETURNING *",
-      [id_tarea, id_tarjeta, nombre_tarea, id_estado]
-    );
+     // Obtener el valor máximo de id_tarea y sumarle 1
+     const result = await pool.query("SELECT COALESCE(MAX(id_tarea), 0) + 1 AS new_id FROM tarea");
+     const newId = result.rows[0].new_id;
+ 
+     // Insertar la nueva tarea con el id_tarea calculado
+     const newTarea = await pool.query(
+       "INSERT INTO tarea (id_tarea, id_tarjeta, nombre_tarea, id_estado) VALUES ($1, $2, $3, $4) RETURNING *",
+       [newId, id_tarjeta, nombre_tarea, id_estado]
+     );
 
     res.status(201).json({
       message: "Tarea creada correctamente",

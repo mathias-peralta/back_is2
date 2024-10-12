@@ -4,7 +4,6 @@ const controller = {};
 // Crear un nuevo espacio de trabajo
 controller.createWorkspace = async (req, res) => {
   const { 
-    id_espacio, 
     propietario, 
     descripcion_espacio, 
     nombre_espacio, 
@@ -13,21 +12,26 @@ controller.createWorkspace = async (req, res) => {
   } = req.body;
 
   try {
+    // Obtener el valor máximo de id_espacio y sumarle 1
+    const result = await pool.query("SELECT COALESCE(MAX(id_espacio), 0) + 1 AS new_id FROM espacio_trabajo");
+    const newId = result.rows[0].new_id;
+
     // Insertar el nuevo espacio de trabajo
-    const newWorkspace = await pool.query(
-      "INSERT INTO espacio_trabajo (id_espacio, propietario, descripcion_espacio, nombre_espacio, fecha_creacion, estado_espacio) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *",
-      [ id_espacio, 
-        propietario, 
-        descripcion_espacio, 
-        nombre_espacio, 
-        fecha_creacion, 
-        estado_espacio]
-    );
+   // Insertar el nuevo espacio de trabajo con el id_espacio calculado
+   const newWorkspace = await pool.query(
+    "INSERT INTO espacio_trabajo (id_espacio, propietario, descripcion_espacio, nombre_espacio, fecha_creacion, estado_espacio) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *",
+    [ newId, 
+      propietario, 
+      descripcion_espacio, 
+      nombre_espacio, 
+      fecha_creacion, 
+      estado_espacio]
+     );
 
     // crear el propietario como miembro
     const newMember = await pool.query(
         "INSERT INTO miembros (id_usuario, id_espacio) VALUES ($1, $2)",
-        [propietario, id_espacio ]
+        [propietario, newId ]
     );
 
     res.status(201).json({

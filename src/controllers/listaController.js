@@ -3,13 +3,17 @@ const controller = {};
 
 // Crear una nueva lista
 controller.createLista = async (req, res) => {
-  const { id_lista, id_tablero, nombre_lista, orden, max_tareas, estado } = req.body;
+  const { id_tablero, nombre_lista, orden, max_tareas, estado } = req.body;
 
   try {
+    // Obtener el valor máximo de id_lista y sumarle 1
+    const result = await pool.query("SELECT COALESCE(MAX(id_lista), 0) + 1 AS new_id FROM lista");
+    const newId = result.rows[0].new_id;
+
     // Insertar la nueva lista
     const newLista = await pool.query(
       "INSERT INTO lista (id_lista, id_tablero, nombre_lista, orden, max_tareas, estado) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *",
-      [id_lista, id_tablero, nombre_lista, orden, max_tareas, estado]
+      [newId, id_tablero, nombre_lista, orden, max_tareas, estado]
     );
 
     res.status(201).json({

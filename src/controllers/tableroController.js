@@ -3,13 +3,17 @@ const controller = {};
 
 // Crear un nuevo espacio de trabajo
 controller.createTablero = async (req, res) => {
-    const { id_tablero, id_espacio, nombre_tablero } = req.body;
+    const { id_espacio, nombre_tablero } = req.body;
 
     try {
+      // Obtener el valor máximo de id_tablero y sumarle 1
+      const result = await pool.query("SELECT COALESCE(MAX(id_tablero), 0) + 1 AS new_id FROM tablero");
+      const newId = result.rows[0].new_id;
+
       // Insertar el nuevo tablero
       const newTablero = await pool.query(
         "INSERT INTO tablero (id_tablero, id_espacio, nombre_tablero) VALUES ($1, $2, $3) RETURNING *",
-        [id_tablero, id_espacio, nombre_tablero]
+        [newId, id_espacio, nombre_tablero]
       );
   
       res.status(201).json({
