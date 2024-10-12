@@ -5,7 +5,6 @@ const pool = require("../config/config");
 // Registro de usuario
 const registerUser = async (req, res) => {
   const {
-    id_usuario,
     correo_usuario,
     password_usuario,
     nombre_usuario,
@@ -23,6 +22,10 @@ const registerUser = async (req, res) => {
       return res.status(400).json({ error: "El correo ya está registrado" });
     }
 
+    // Obtener el máximo valor de id_usuario y sumarle 1
+      const result = await pool.query("SELECT COALESCE(MAX(id_usuario), 0) + 1 AS new_id FROM usuario");
+      const newId = result.rows[0].new_id;
+
     // Encriptar la contraseña
     const saltRounds = 10;
     const hashedPassword = await bcrypt.hash(password_usuario, saltRounds);
@@ -31,7 +34,7 @@ const registerUser = async (req, res) => {
     const newUser = await pool.query(
       "INSERT INTO usuario (id_usuario, correo_usuario, password_usuario, nombre_usuario, apellido_usuario, estado_usuario) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *",
       [
-        id_usuario,
+        newId, // Usamos el nuevo id generado
         correo_usuario,
         hashedPassword,
         nombre_usuario,
