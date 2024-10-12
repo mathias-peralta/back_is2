@@ -98,8 +98,23 @@ const logoutUser = (req, res) => {
   }
 };
 
+// Controlador para listar todos los usuarios
+const getAllUsers = async (req, res) => {
+  try {
+    // Consulta para obtener todos los usuarios
+    const result = await pool.query("SELECT id_usuario, correo_usuario, nombre_usuario, apellido_usuario FROM usuario where estado_usuario='activo'");
+    
+    res.status(200).json(result.rows); // Devolver los usuarios como JSON
+  } catch (err) {
+    console.error("Error al listar usuarios:", err.message);
+    res.status(500).json({ error: "Error al obtener los usuarios" });
+  }
+};
+
+
 module.exports = {
   registerUser,
   loginUser,
+  getAllUsers,
   logoutUser
 };
