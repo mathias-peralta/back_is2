@@ -28,7 +28,7 @@ controller.createWorkspace = async (req, res) => {
         descripcion_espacio,
         nombre_espacio,
         fecha_creacion,
-        estado_espacio,
+        "activo",
       ]
     );
 
