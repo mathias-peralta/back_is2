@@ -14,6 +14,7 @@ router.get("/workspaces/:id", workspaceController.getWorkspace);
 // Actualizar un espacio de trabajo (solo inactivar, no borrar)
 router.put("/workspaces/:id", workspaceController.updateWorkspace);
 
+
 // Ruta para obtener la lista de miembros en un espacio de trabajo específico
 router.get(
   "/workspaces/miembros/:id_espacio",

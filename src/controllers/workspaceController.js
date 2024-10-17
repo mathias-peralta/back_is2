@@ -90,23 +90,37 @@ controller.getAllWorkspace = async (req, res) => {
   }
 };
 
-// Actualizar (inactivar) un espacio de trabajo
+// Actualizar (inactivar) un espacio de trabajo, solo el propietario puede inactivarlo
 controller.updateWorkspace = async (req, res) => {
   const { id } = req.params;
-  const { estado_espacio } = req.body;
+  const { propietario, estado_espacio } = req.body;
 
   try {
-    // Actualizar el estado del espacio de trabajo
-    const result = await pool.query(
-      "UPDATE espacio_trabajo SET estado_espacio = $1 WHERE id_espacio = $2",
-      [estado_espacio, id]
+    // Verificar si el usuario que solicita es el propietario
+    const ownerResult = await pool.query(
+      "SELECT propietario FROM espacio_trabajo WHERE id_espacio = $1",
+      [id]
     );
 
-    if (result.rowCount === 0) {
+    if (ownerResult.rows.length === 0) {
       return res
         .status(404)
         .json({ error: "Espacio de trabajo no encontrado" });
     }
+
+    const espacioPropietario = ownerResult.rows[0].propietario;
+
+    if (espacioPropietario !== propietario) {
+      return res.status(403).json({
+        error: "No tienes permisos para inactivar este espacio de trabajo",
+      });
+    }
+
+    // Actualizar el estado del espacio de trabajo a inactivo
+    const result = await pool.query(
+      "UPDATE espacio_trabajo SET estado_espacio = $1 WHERE id_espacio = $2",
+      [estado_espacio, id]
+    );
 
     res
       .status(200)
@@ -127,10 +141,7 @@ controller.getWorkspaceMembers = async (req, res) => {
   try {
     // Hacer una consulta para obtener todos los miembros del espacio de trabajo
     const result = await pool.query(
-      `SELECT u.id_usuario, u.nombre_usuario, u.apellido_usuario, u.correo_usuario 
-       FROM usuario u
-       JOIN miembros m ON u.id_usuario = m.id_usuario
-       WHERE m.id_espacio = $1`,
+      "SELECT u.id_usuario, u.nombre_usuario, u.apellido_usuario, u.correo_usuario FROM usuario u JOIN miembros m ON u.id_usuario = m.id_usuario WHERE m.id_espacio = $1"
       [id_espacio]
     );
 
