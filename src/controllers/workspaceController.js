@@ -93,7 +93,7 @@ controller.getAllWorkspace = async (req, res) => {
 // Actualizar (inactivar) un espacio de trabajo, solo el propietario puede inactivarlo
 controller.updateWorkspace = async (req, res) => {
   const { id } = req.params;
-  const { propietario, estado_espacio } = req.body;
+  const { propietario} = req.body;
 
   try {
     // Verificar si el usuario que solicita es el propietario
@@ -115,7 +115,8 @@ controller.updateWorkspace = async (req, res) => {
         error: "No tienes permisos para inactivar este espacio de trabajo",
       });
     }
-
+    
+    estado_espacio = 'inactivo'
     // Actualizar el estado del espacio de trabajo a inactivo
     const result = await pool.query(
       "UPDATE espacio_trabajo SET estado_espacio = $1 WHERE id_espacio = $2",
