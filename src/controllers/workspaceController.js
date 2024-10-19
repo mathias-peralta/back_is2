@@ -72,21 +72,25 @@ controller.getWorkspace = async (req, res) => {
 };
 
 controller.getAllWorkspace = async (req, res) => {
+  const { id } = req.params; // Recibiendo el id del usuario miembro como parámetro
+  const estado_espacio = 'activo'; // Definiendo el estado del espacio como 'activo'
+
   try {
     const workspaceResult = await pool.query(
-      "SELECT * FROM espacio_trabajo WHERE estado_espacio = 'activo'"
+      "SELECT m.id_espacio, et2.nombre_espacio, et2.descripcion_espacio, et2.propietario FROM miembros m INNER JOIN espacio_trabajo et2 ON m.id_espacio = et2.id_espacio WHERE m.id_usuario = $1 AND et2.estado_espacio = $2",
+      [id, estado_espacio]
     );
 
     if (workspaceResult.rows.length === 0) {
       return res
         .status(404)
-        .json({ error: "Espacio de trabajo no encontrado" });
+        .json({ error: "Espacio de trabajo NO encontrado para este usuario" });
     }
 
-    res.status(200).json(workspaceResult.rows);
+    res.status(200).json(workspaceResult.rows); // Aquí devolvemos todos los registros
   } catch (err) {
     console.error("Error ejecutando la consulta", err.stack);
-    res.status(500).json({ error: "Error al obtener el espacio de trabajo" });
+    res.status(500).json({ error: "Error al obtener los espacios de trabajo" });
   }
 };
 
