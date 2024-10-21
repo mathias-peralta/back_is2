@@ -9,6 +9,7 @@ controller.createWorkspace = async (req, res) => {
     nombre_espacio,
     fecha_creacion,
     estado_espacio,
+    miembros, 
   } = req.body;
 
   try {
@@ -18,7 +19,6 @@ controller.createWorkspace = async (req, res) => {
     );
     const newId = result.rows[0].new_id;
 
-    // Insertar el nuevo espacio de trabajo
     // Insertar el nuevo espacio de trabajo con el id_espacio calculado
     const newWorkspace = await pool.query(
       "INSERT INTO espacio_trabajo (id_espacio, propietario, descripcion_espacio, nombre_espacio, fecha_creacion, estado_espacio) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *",
@@ -28,15 +28,27 @@ controller.createWorkspace = async (req, res) => {
         descripcion_espacio,
         nombre_espacio,
         fecha_creacion,
-        "activo",
+        estado_espacio || "activo", // Valor por defecto "activo"
       ]
     );
 
-    // crear el propietario como miembro
+    // Insertar al propietario como miembro del espacio de trabajo
     const newMember = await pool.query(
       "INSERT INTO miembros (id_usuario, id_espacio) VALUES ($1, $2)",
       [propietario, newId]
     );
+    
+    
+     // Insertar los miembros adicionales si se han proporcionado
+     if (miembros && miembros.length > 0) {
+      for (const miembro of miembros) {
+        // Insertar cada miembro en la tabla de miembros
+        await pool.query(
+          "INSERT INTO miembros (id_usuario, id_espacio) VALUES ($1, $2)",
+          [miembro, newId]
+        );
+      }
+    }
 
     res.status(201).json({
       message: "Espacio de trabajo creado correctamente",
