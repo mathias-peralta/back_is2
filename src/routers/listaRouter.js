@@ -8,6 +8,9 @@ router.post("/listas", listaController.createLista);
 // Obtener una lista por ID
 router.get("/listas/:id_lista", listaController.getLista);
 
+// Obtener una lista por ID
+router.get("/listas_tablero/:id_tablero", listaController.getListaByTablero);
+
 // Actualizar una lista por ID
 router.put("/listas/:id_lista", listaController.updateLista);
 
