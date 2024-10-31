@@ -6,6 +6,11 @@ const cors = require("cors");
 const indexRouter = require("./routers/indexRouter");
 const userRouter = require("./routers/userRouter");
 const authRoutes = require("./routers/authRouter");
+const workspaceRouter = require ("./routers/workspaceRouter");
+const tableroRouter = require("./routers/tableroRouter");
+const listaRouter = require("./routers/listaRouter");
+const tareaRouter = require("./routers/tareaRouter");
+const tarjetaRouter = require("./routers/tarjetaRouter");
 
 //settings
 app.set("port", process.env.PORT || 3001);
@@ -26,6 +31,11 @@ app.use(cors());
 app.use(indexRouter);
 app.use(userRouter);
 app.use("/api/auth", authRoutes);
+app.use("/api/", workspaceRouter);
+app.use("/api/", tableroRouter);
+app.use("/api/", listaRouter);
+app.use("/api/", tareaRouter);
+app.use("/api/", tarjetaRouter);
 
 //config
 app.listen(app.get("port"), () => {
