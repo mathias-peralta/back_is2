@@ -11,4 +11,6 @@ router.get("/tableros/:id_tablero", tableroController.getTablero);
 // Actualizar un tablero por ID
 router.put("/tableros/:id_tablero", tableroController.updateTablero);
 
+router.get("/tableros_all/:id_espacio", tableroController.getTablerosByWorkspace);
+
 module.exports = router;

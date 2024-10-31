@@ -9,7 +9,7 @@ const registerUser = async (req, res) => {
     password_usuario,
     nombre_usuario,
     apellido_usuario,
-    estado_usuario
+    estado_usuario,
   } = req.body;
 
   try {
@@ -39,7 +39,7 @@ const registerUser = async (req, res) => {
         hashedPassword,
         nombre_usuario,
         apellido_usuario,
-        estado_usuario
+        estado_usuario,
       ]
     );
 
@@ -55,37 +55,41 @@ const registerUser = async (req, res) => {
 
 // Login de usuario
 const loginUser = async (req, res) => {
-  const { 
-    correo_usuario, 
-    password_usuario 
-  } = req.body;
+  const { id_usuario, correo_usuario, password_usuario } = req.body;
 
   try {
-    // Buscar el usuario por id
+    // Buscar el usuario por correo
     const userResult = await pool.query(
-      "SELECT * FROM usuario WHERE  correo_usuario = $1",
+      "SELECT * FROM usuario WHERE correo_usuario = $1",
       [correo_usuario]
     );
     const user = userResult.rows[0];
-
+    console.log({ user });
     if (!user) {
       return res.status(400).json({ error: "Usuario no encontrado" });
     }
 
     // Verificar la contraseña
-    const validPassword = await bcrypt.compare(password_usuario, user.password_usuario);
+    const validPassword = await bcrypt.compare(
+      password_usuario,
+      user.password_usuario
+    );
     if (!validPassword) {
       return res.status(400).json({ error: "Contraseña incorrecta" });
     }
 
     // Generar el token JWT
-    const token = jwt.sign({ userId: user.id_usuario }, process.env.JWT_SECRET, {
-      expiresIn: "1h", // Expira en 1 hora
-    });
+    const token = jwt.sign(
+      { userId: user.id_usuario },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "1h", // Expira en 1 hora
+      }
+    );
 
     res.status(200).json({ token, message: "Login exitoso" });
   } catch (err) {
-    console.error('Error al iniciar sesión:', err.message);
+    console.error("Error al iniciar sesión:", err.message);
     res.status(500).json({ error: "Error al iniciar sesión" });
   }
 };
@@ -94,7 +98,9 @@ const loginUser = async (req, res) => {
 const logoutUser = (req, res) => {
   try {
     // Aquí el cliente debe eliminar el token localmente
-    res.status(200).json({ message: "Logout exitoso, elimina el token en el cliente" });
+    res
+      .status(200)
+      .json({ message: "Logout exitoso, elimina el token en el cliente" });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Error al cerrar sesión" });
@@ -105,8 +111,10 @@ const logoutUser = (req, res) => {
 const getAllUsers = async (req, res) => {
   try {
     // Consulta para obtener todos los usuarios
-    const result = await pool.query("SELECT id_usuario, correo_usuario, nombre_usuario, apellido_usuario FROM usuario where estado_usuario='activo'");
-    
+    const result = await pool.query(
+      "SELECT id_usuario, correo_usuario, nombre_usuario, apellido_usuario FROM usuario where estado_usuario='activo'"
+    );
+
     res.status(200).json(result.rows); // Devolver los usuarios como JSON
   } catch (err) {
     console.error("Error al listar usuarios:", err.message);
@@ -114,10 +122,9 @@ const getAllUsers = async (req, res) => {
   }
 };
 
-
 module.exports = {
   registerUser,
   loginUser,
   getAllUsers,
-  logoutUser
+  logoutUser,
 };

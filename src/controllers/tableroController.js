@@ -47,6 +47,26 @@ controller.getTablero = async (req, res) => {
     }
 };
 
+controller.getTablerosByWorkspace = async (req, res) => {
+  const { id_espacio } = req.params;
+
+  try {
+    const tableroResult = await pool.query(
+      "SELECT * FROM tablero WHERE id_espacio = $1",
+      [id_espacio]
+    );
+
+    if (tableroResult.rows.length === 0) {
+      return res.status(404).json({ error: "No se encontraron tableros para este espacio de trabajo" });
+    }
+
+    res.status(200).json(tableroResult.rows); // Devuelve todos los tableros encontrados
+  } catch (err) {
+    console.error("Error al obtener los tableros:", err.message);
+    res.status(500).json({ error: "Error al obtener los tableros" });
+  }
+};
+
 // Actualizar (inactivar) un espacio de trabajo
 controller.updateTablero = async (req, res) => {
     const { id_tablero } = req.params;

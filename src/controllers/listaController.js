@@ -3,7 +3,7 @@ const controller = {};
 
 // Crear una nueva lista
 controller.createLista = async (req, res) => {
-  const { id_tablero, nombre_lista, orden, max_tareas, estado } = req.body;
+  const { id_tablero, nombre_lista, orden, max_tareas } = req.body;
 
   try {
     // Obtener el valor máximo de id_lista y sumarle 1
@@ -11,9 +11,10 @@ controller.createLista = async (req, res) => {
     const newId = result.rows[0].new_id;
 
     // Insertar la nueva lista
+    //estado = "activo";
     const newLista = await pool.query(
       "INSERT INTO lista (id_lista, id_tablero, nombre_lista, orden, max_tareas, estado) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *",
-      [newId, id_tablero, nombre_lista, orden, max_tareas, estado]
+      [newId, id_tablero, nombre_lista, orden, max_tareas, "activo"]
     );
 
     res.status(201).json({
@@ -41,6 +42,27 @@ controller.getLista = async (req, res) => {
     }
 
     res.status(200).json(listaResult.rows[0]);
+  } catch (err) {
+    console.error("Error al obtener la lista:", err.message);
+    res.status(500).json({ error: "Error al obtener la lista" });
+  }
+};
+
+//obtener listas activas de un tablero
+controller.getListaByTablero = async (req, res) => {
+  const { id_tablero  } = req.params;
+
+  try {
+    const listaResult = await pool.query(
+      "select l.* from lista l inner join tablero t on t.id_tablero = l.id_tablero where t.id_tablero = $1 and estado = 'activo'",
+      [id_tablero]
+    );
+
+    if (listaResult.rows.length === 0) {
+      return res.status(404).json({ error: "Lista no encontrada" });
+    }
+
+    res.status(200).json(listaResult.rows);
   } catch (err) {
     console.error("Error al obtener la lista:", err.message);
     res.status(500).json({ error: "Error al obtener la lista" });
