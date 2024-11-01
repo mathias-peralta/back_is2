@@ -20,4 +20,16 @@ router.put("/tarjetas/:id_tarjeta/fecha-vencimiento", tarjetaController.updateFe
 // Eliminar (o inactivar) una tarjeta por ID
 router.delete("/tarjetas/:id_tarjeta", tarjetaController.deleteTarjeta);
 
+// Ruta para verificar si una tarjeta está vencida
+router.get("/tarjetas/:id_tarjeta/vencimiento", tarjetaController.isTarjetaVencida);
+
+// Ruta para listar todas las tareas de una tarjeta
+router.get("/tarjetas/:id_tarjeta/tareas", tarjetaController.getTareaByTarjeta);
+
+// Ruta para cambiar el usuario asignado a una tarjeta
+router.put("/tarjetas/:id_tarjeta/asignar-usuario", tarjetaController.updateUserAsignado);
+
+// Ruta para actualizar la lista de una tarjeta
+router.put('/tarjetas/:id_tarjeta/lista', tarjetaController.updateListaTarjeta);
+
 module.exports = router;

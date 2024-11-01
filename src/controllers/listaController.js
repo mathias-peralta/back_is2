@@ -114,4 +114,58 @@ controller.deleteLista = async (req, res) => {
     }
   };
 
+  controller.getTarjetabyList = async (req, res) => {
+    const { id_lista } = req.params; // Recibiendo el id de la lista como parámetro
+    const estado = 'activo';
+  
+    try {
+      const cardResult = await pool.query(
+        "SELECT t.* FROM tarjeta t INNER JOIN lista l ON t.id_lista = l.id_lista WHERE l.id_lista = $1 AND l.estado = $2",
+        [id_lista, estado]
+      );
+  
+      if (cardResult.rows.length === 0) {
+        return res
+          .status(404)
+          .json({ error: "No se encontraron tarjetas para esta lista activa" });
+      }
+  
+      res.status(200).json(cardResult.rows); // Devolvemos todas las tarjetas encontradas
+    } catch (err) {
+      console.error("Error ejecutando la consulta", err.stack);
+      res.status(500).json({ error: "Error al obtener las tarjetas de la lista" });
+    }
+  };
+
+// Controlador para verificar la alerta WIP
+controller.checkWIP = async (req, res) => {
+  const { id_lista } = req.params; // Recibiendo el id de la lista como parámetro
+
+  try {
+    const result = await pool.query(
+      `SELECT CASE 
+          WHEN l2.max_tareas <= (
+            SELECT COUNT(*) 
+            FROM tarjeta t 
+            INNER JOIN lista l ON t.id_lista = l.id_lista 
+            WHERE l.id_lista = $1 AND l.estado = 'activo'
+          ) 
+          THEN 'WIP AL LIMITE' 
+          ELSE 'WIP DENTRO DEL LIMITE' 
+        END AS alerta_wip
+      FROM lista l2 
+      WHERE l2.id_lista = $1`,
+      [id_lista]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Lista no encontrada" });
+    }
+
+    res.status(200).json(result.rows[0]); // Devolver el estado de la alerta WIP
+  } catch (err) {
+    console.error("Error ejecutando la consulta", err.stack);
+    res.status(500).json({ error: "Error al verificar la alerta WIP" });
+  }
+};
 module.exports = controller;
